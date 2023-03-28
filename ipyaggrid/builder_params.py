@@ -1,4 +1,3 @@
-
 import gzip
 import base64
 
@@ -20,10 +19,8 @@ class BuilderParams:
     obj: a Grid object whose attributes will be checked and built by BuilderParams.
     """
 
-    def __init__(self,
-                 obj):
-        """
-        """
+    def __init__(self, obj):
+        """ """
         self.obj = obj
 
     def valid(self):
@@ -32,8 +29,9 @@ class BuilderParams:
         """
 
         msg = 'width must be an int (number of pixels) or a string'
-        assert (isinstance(self.obj.width_in, int)
-                or isinstance(self.obj.width_in, str)), msg
+        assert isinstance(self.obj.width_in, int) or isinstance(
+            self.obj.width_in, str
+        ), msg
 
         msg = 'height must be an int (number of pixels)'
         assert isinstance(self.obj.height_in, int), msg
@@ -140,17 +138,16 @@ class BuilderParams:
         if 'inputs' in self.obj.menu_in:
             msg = 'menu["inputs"] must be a list'
             assert isinstance(self.obj.menu_in['inputs'], list), msg
-            li_names = ['Dropdown Menu', 'Quick Filter',
-                        'Toggle Edit', 'Toggle Delete']
+            li_names = ['Dropdown Menu', 'Quick Filter', 'Toggle Edit', 'Toggle Delete']
             msg = 'each element of menu["inputs"] must have a "name" key with its value in {}'.format(
-                li_names)
+                li_names
+            )
             for e in self.obj.menu_in['inputs']:
                 assert 'name' in e, msg
                 assert e['name'] in li_names, msg
 
         msg = 'grid_data must be a list or a dataframe'
-        assert isinstance(self.obj.grid_data_in,
-                          (list, pd.core.frame.DataFrame)), msg
+        assert isinstance(self.obj.grid_data_in, (list, pd.core.frame.DataFrame)), msg
         if isinstance(self.obj.grid_data_in, list):
             msg = 'each element of grid_data must be a dict'
             for e in self.obj.grid_data_in:
@@ -160,12 +157,12 @@ class BuilderParams:
             self.obj._is_df = True
 
         msg = 'both grid_options and grid_options_multi cannot be set'
-        assert ((self.obj.grid_options == {}) or
-                (self.obj.grid_options_multi == [])), msg
+        assert (self.obj.grid_options == {}) or (self.obj.grid_options_multi == []), msg
 
         msg = 'one exactly of grid_options or grid_options_multi mut be set'
-        assert not((self.obj.grid_options == {}) and
-                   (self.obj.grid_options_multi == [])), msg
+        assert not (
+            (self.obj.grid_options == {}) and (self.obj.grid_options_multi == [])
+        ), msg
 
         if self.obj.grid_options == {}:
             self.obj._is_grid_options_multi = True
@@ -179,7 +176,9 @@ class BuilderParams:
         if self.obj.grid_options_multi != []:
             msg = 'grid_options_multi must be a list or a tuple'
             assert isinstance(self.obj.grid_options_multi, (list, tuple)), msg
-            msg1 = 'each element of grid_options_multi must be a list or tuple of length 2'
+            msg1 = (
+                'each element of grid_options_multi must be a list or tuple of length 2'
+            )
             msg2 = 'in each grid_options_multi element of length 2, the first one must be a string'
             msg3 = 'in each grid_options_multi element of length 3, the second one must be a dict'
             for e in self.obj.grid_options_multi:
@@ -222,7 +221,8 @@ class BuilderParams:
                     self.obj.grid_data_in,
                     options,
                     index=self.obj.index,
-                    keep_multiindex=self.obj.keep_multiindex)
+                    keep_multiindex=self.obj.keep_multiindex,
+                )
                 grid_options_multi_2.append((name, options_2))
             self.obj.grid_options_multi_json = grid_options_multi_2
 
@@ -231,42 +231,45 @@ class BuilderParams:
                 self.obj.grid_data_in,
                 self.obj.grid_options,
                 index=self.obj.index,
-                keep_multiindex=self.obj.keep_multiindex)
+                keep_multiindex=self.obj.keep_multiindex,
+            )
 
         if self.obj.is_multi:
             self.obj._grid_options_multi_down = Util.build_options(
-                {'data': self.obj.grid_options_multi}, True)
+                {'data': self.obj.grid_options_multi}, True
+            )
         else:
             self.obj._grid_options_mono_down = Util.build_options(
-                self.obj.grid_options, False)
+                self.obj.grid_options, False
+            )
 
         # js builtin helpers
-        self.obj._js_helpers_builtin = Util.load_file(
-            'js', 'helpersBuiltin.js')
+        self.obj._js_helpers_builtin = Util.load_file('js', 'helpersBuiltin.js')
 
         # js custom helpers
         if self.obj.js_helpers_custom == '':
             self.js_helpers_custom = 'helpersCustom = {}'
 
-    def preprocess_input(self,
-                         grid_data,
-                         grid_options,
-                         index,
-                         keep_multiindex):
-        """
-        """
+    def preprocess_input(self, grid_data, grid_options, index, keep_multiindex):
+        """ """
 
         if self.obj.show_toggle_edit:
-            func_update_edit = """function(params){
-                return window.agGridOptions["""+str(self.obj._id)+"""].editableCustom;
+            func_update_edit = (
+                """function(params){
+                return window.agGridOptions["""
+                + str(self.obj._id)
+                + """].editableCustom;
                 }"""
+            )
             if 'defaultColDef' in grid_options:
                 grid_options['defaultColDef']['editable'] = func_update_edit
             else:
                 grid_options['defaultColDef'] = {'editable': func_update_edit}
 
         if self.obj.paste_from_excel:
-            grid_options['processDataFromClipboard'] = """function(params){
+            grid_options[
+                'processDataFromClipboard'
+            ] = """function(params){
                 const { data } = params;
                 console.log(data);
 
@@ -329,38 +332,30 @@ class BuilderParams:
 
         if Util.is_multiindex_df(grid_data):
             grid_data_2, grid_options_2 = Util.prepare_multiindex_df(
-                grid_data,
-                grid_options,
-                index=index,
-                keep_multiindex=keep_multiindex)
+                grid_data, grid_options, index=index, keep_multiindex=keep_multiindex
+            )
 
         elif Util.is_df(grid_data):
             grid_data_2, grid_options_2 = Util.prepare_singleindex_df(
-                grid_data,
-                grid_options,
-                index=index)
+                grid_data, grid_options, index=index
+            )
 
         else:
             grid_data_2, grid_options_2 = grid_data, grid_options
 
-        grid_options_2 = Util.update_columnTypes(
-            grid_options_2)
+        grid_options_2 = Util.update_columnTypes(grid_options_2)
 
         return Util.build_data(grid_data_2), grid_options_2
 
     def to_dict(self):
-        """
-        """
+        """ """
         d = copy(self.__dict__)
         d = {k: v for k, v in d.items() if v is not None}
         return d
 
     def pprint(self, indent=2):
-        """
-        """
-        d = json.dumps(self.to_dict(),
-                       sort_keys=True,
-                       indent=indent)
+        """ """
+        d = json.dumps(self.to_dict(), sort_keys=True, indent=indent)
         print(d)
 
     def __repr__(self):

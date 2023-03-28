@@ -20,6 +20,7 @@ class Grid(wg.DOMWidget):
     """
     Ag-Grid widget
     """
+
     _model_name = Unicode('AgGridModel').tag(sync=True)
     _view_name = Unicode('AgGridView').tag(sync=True)
     _model_module = Unicode('ipyaggrid').tag(sync=True)
@@ -34,15 +35,13 @@ class Grid(wg.DOMWidget):
     center = Bool(False).tag(sync=True)
     theme = Unicode('').tag(sync=True)
 
-    _grid_data_down = List([]).tag(
-        sync=True, to_json=Util.data_to_json)
-    _grid_data_up = Dict({}).tag(
-        sync=True, from_json=Util.data_from_json)
+    _grid_data_down = List([]).tag(sync=True, to_json=Util.data_to_json)
+    _grid_data_up = Dict({}).tag(sync=True, from_json=Util.data_from_json)
     _is_grid_options_multi = Bool(False).tag(sync=True)
-    _grid_options_mono_down = Unicode('').tag(
-        sync=True, to_json=Util.options_to_json)
+    _grid_options_mono_down = Unicode('').tag(sync=True, to_json=Util.options_to_json)
     _grid_options_multi_down = List([]).tag(
-        sync=True, to_json=Util.multi_options_to_json)
+        sync=True, to_json=Util.multi_options_to_json
+    )
     columns_fit = Unicode('').tag(sync=True)
     compress_data = Bool(False).tag(sync=True)
 
@@ -55,10 +54,8 @@ class Grid(wg.DOMWidget):
     _export_mode = Unicode('').tag(sync=True)  # Used for auto-export
     hide_grid = Bool(False).tag(sync=True)
 
-    _js_helpers_builtin = Unicode('').tag(
-        sync=True, to_json=Util.options_to_json)
-    js_helpers_custom = Unicode('').tag(
-        sync=True, to_json=Util.options_to_json)
+    _js_helpers_builtin = Unicode('').tag(sync=True, to_json=Util.options_to_json)
+    js_helpers_custom = Unicode('').tag(sync=True, to_json=Util.options_to_json)
     js_helpers = Unicode('').tag(sync=True)
     js_pre_helpers = List([]).tag(sync=True)
     js_pre_grid = List([]).tag(sync=True)
@@ -76,41 +73,39 @@ class Grid(wg.DOMWidget):
 
     params = []
 
-    def __init__(self,
-                 width='100%',
-                 height=0,
-                 center=False,
-                 theme='ag-theme-fresh',
-
-                 grid_data=[],
-                 grid_options={},
-                 grid_options_multi=[],
-                 columns_fit='size_to_fit',
-                 index=False,
-                 keep_multiindex=False,
-                 compress_data=True,
-
-                 quick_filter=False,
-                 export_csv=False,
-                 export_excel=False,
-                 show_toggle_delete=False,
-                 show_toggle_edit=False,
-                 sync_on_edit=False,
-                 sync_grid=True,
-                 paste_from_excel=False,
-                 export_mode='disabled',
-                 export_to_df=True,
-                 hide_grid=False,
-
-                 js_helpers_custom='',
-                 js_pre_helpers=[],
-                 js_pre_grid=[],
-                 js_post_grid=[],
-                 css_rules='',
-                 menu=None,
-                 user_params={},
-
-                 license=''):
+    def __init__(
+        self,
+        width='100%',
+        height=0,
+        center=False,
+        theme='ag-theme-fresh',
+        grid_data=[],
+        grid_options={},
+        grid_options_multi=[],
+        columns_fit='size_to_fit',
+        index=False,
+        keep_multiindex=False,
+        compress_data=True,
+        quick_filter=False,
+        export_csv=False,
+        export_excel=False,
+        show_toggle_delete=False,
+        show_toggle_edit=False,
+        sync_on_edit=False,
+        sync_grid=True,
+        paste_from_excel=False,
+        export_mode='disabled',
+        export_to_df=True,
+        hide_grid=False,
+        js_helpers_custom='',
+        js_pre_helpers=[],
+        js_pre_grid=[],
+        js_post_grid=[],
+        css_rules='',
+        menu=None,
+        user_params={},
+        license='',
+    ):
         """
         Instantiates the widget. See https://widgetti.github.io/ipyaggrid/guide/create.html#parameters
         for more details.
@@ -187,78 +182,89 @@ class Grid(wg.DOMWidget):
     @observe('_grid_data_up')
     def export(self, change):
         if not self.unsync:
-            if ('rows' in self._grid_data_up.keys()):
+            if 'rows' in self._grid_data_up.keys():
                 data_up = self._grid_data_up['rows']
                 to_df = {}
-                if(len(data_up['index_rows']['names']) != 0):
+                if len(data_up['index_rows']['names']) != 0:
                     to_df['index'] = pd.MultiIndex.from_tuples(
-                        *[data_up['index_rows']['values']], names=data_up['index_rows']['names'])
+                        *[data_up['index_rows']['values']],
+                        names=data_up['index_rows']['names']
+                    )
                 if len(data_up['index_columns'][0]) == 1:
-                    index_columns = [elem[0]
-                                     for elem in data_up['index_columns']]
+                    index_columns = [elem[0] for elem in data_up['index_columns']]
                     to_df['columns'] = index_columns
                 else:
                     to_df['columns'] = pd.MultiIndex.from_tuples(
-                        *[data_up['index_columns']])
+                        *[data_up['index_columns']]
+                    )
                 to_df['data'] = data_up['data']
                 if self.export_to_df:
                     self.grid_data_out['rows'] = pd.DataFrame(**to_df)
                 else:
-                    self.grid_data_out['rows'] = pd.DataFrame(
-                        **to_df).to_dict(orient='records')
-            if ('grid' in self._grid_data_up.keys()):
+                    self.grid_data_out['rows'] = pd.DataFrame(**to_df).to_dict(
+                        orient='records'
+                    )
+            if 'grid' in self._grid_data_up.keys():
                 data_up = self._grid_data_up['grid']
                 to_df = {}
-                if(len(data_up['index_rows']['names']) != 0):
+                if len(data_up['index_rows']['names']) != 0:
                     to_df['index'] = pd.MultiIndex.from_tuples(
-                        *[data_up['index_rows']['values']], names=data_up['index_rows']['names'])
+                        *[data_up['index_rows']['values']],
+                        names=data_up['index_rows']['names']
+                    )
                 if len(data_up['index_columns'][0]) == 1:
-                    index_columns = [elem[0]
-                                     for elem in data_up['index_columns']]
+                    index_columns = [elem[0] for elem in data_up['index_columns']]
                     to_df['columns'] = index_columns
                 else:
                     to_df['columns'] = pd.MultiIndex.from_tuples(
-                        *[data_up['index_columns']])
+                        *[data_up['index_columns']]
+                    )
                 to_df['data'] = data_up['data']
                 self.grid_data_out['grid'] = pd.DataFrame(**to_df)
-            if ('range' in self._grid_data_up.keys()):
+            if 'range' in self._grid_data_up.keys():
                 data_up = self._grid_data_up['range']
                 to_df = {}
-                if(len(data_up['index_rows']['names']) != 0):
+                if len(data_up['index_rows']['names']) != 0:
                     to_df['index'] = pd.MultiIndex.from_tuples(
-                        *[data_up['index_rows']['values']], names=data_up['index_rows']['names'])
+                        *[data_up['index_rows']['values']],
+                        names=data_up['index_rows']['names']
+                    )
                 if len(data_up['index_columns'][0]) == 1:
-                    index_columns = [elem[0]
-                                     for elem in data_up['index_columns']]
+                    index_columns = [elem[0] for elem in data_up['index_columns']]
                     to_df['columns'] = index_columns
                 else:
                     to_df['columns'] = pd.MultiIndex.from_tuples(
-                        *[data_up['index_columns']])
+                        *[data_up['index_columns']]
+                    )
                 to_df['data'] = data_up['data']
                 if self.export_to_df:
                     self.grid_data_out['range'] = pd.DataFrame(**to_df)
                 else:
-                    self.grid_data_out['cols'] = pd.DataFrame(
-                        **to_df).to_dict(orient='records')
-            if ('cols' in self._grid_data_up.keys()):
+                    self.grid_data_out['cols'] = pd.DataFrame(**to_df).to_dict(
+                        orient='records'
+                    )
+            if 'cols' in self._grid_data_up.keys():
                 data_up = self._grid_data_up['cols']
                 to_df = {}
-                if(len(data_up['index_rows']['names']) != 0):
+                if len(data_up['index_rows']['names']) != 0:
                     to_df['index'] = pd.MultiIndex.from_tuples(
-                        *[data_up['index_rows']['values']], names=data_up['index_rows']['names'])
+                        *[data_up['index_rows']['values']],
+                        names=data_up['index_rows']['names']
+                    )
                 if len(data_up['index_columns'][0]) == 1:
-                    index_columns = [elem[0]
-                                     for elem in data_up['index_columns']]
+                    index_columns = [elem[0] for elem in data_up['index_columns']]
                     to_df['columns'] = index_columns
                 else:
                     to_df['columns'] = pd.MultiIndex.from_tuples(
-                        *[data_up['index_columns']])
+                        *[data_up['index_columns']]
+                    )
                 to_df['data'] = data_up['data']
                 if self.export_to_df:
                     self.grid_data_out['cols'] = pd.DataFrame(**to_df)
                 else:
-                    self.grid_data_out['cols'] = pd.DataFrame(
-                        **to_df).to_dict(orient='records')
+                    self.grid_data_out['cols'] = pd.DataFrame(**to_df).to_dict(
+                        orient='records'
+                    )
             x = 0
             if 'counter' in self.grid_data_out:
                 x = self.grid_data_out['counter']
@@ -290,16 +296,20 @@ class Grid(wg.DOMWidget):
 
     def export_html(self, build=False):
         """
-        If build==True, returns a str containing HTML code 
+        If build==True, returns a str containing HTML code
         for embedding as a standalone widget.
         If build==False, returns a dict containing 4 parts necessary
         to put several embed widgets in the same page.
         """
         if build:
             html = export_html_code(self)
-            return (html['script_tags'] +
-                    (html['html_state']).format(manager_state=json.dumps(html['manager_state'])) +
-                    html['grid_div'])
+            return (
+                html['script_tags']
+                + (html['html_state']).format(
+                    manager_state=json.dumps(html['manager_state'])
+                )
+                + html['grid_div']
+            )
         return export_html_code(self)
 
     def dump(self, path, mode='standalone'):
@@ -307,25 +317,26 @@ class Grid(wg.DOMWidget):
         Similar as export_html, but create the files in the in the 'path' directory.
         """
         if mode == 'standalone':
-            with open(path+"/export_grid_standalone"+str(self._id)+".html", 'w+') as f:
+            with open(
+                path + "/export_grid_standalone" + str(self._id) + ".html", 'w+'
+            ) as f:
                 f.write(self.export_html(build=True))
         elif mode == 'all':
             widget_export = self.export_html(build=False)
-            with open(path+"/export_scripts.html", "w+") as f:
+            with open(path + "/export_scripts.html", "w+") as f:
                 f.write(widget_export['script_tags'])
-            with open(path+"/export_html_state.html", "w+") as f:
+            with open(path + "/export_html_state.html", "w+") as f:
                 f.write(widget_export['html_state'])
-            with open(path+"/export_state_"+str(self._id)+".json", "w+") as f:
+            with open(path + "/export_state_" + str(self._id) + ".json", "w+") as f:
                 f.write(json.dumps(widget_export['manager_state']))
-            with open(path+"/export_grid_"+str(self._id)+".html", "w+") as f:
+            with open(path + "/export_grid_" + str(self._id) + ".html", "w+") as f:
                 f.write(widget_export['grid_div'])
 
     def show_helpers(self):
-        """
-        """
+        """ """
         dic = json.loads(self.js_helpers)
         for k, v in dic.items():
-            print('\n' + k+' : '+v)
+            print('\n' + k + ' : ' + v)
 
     def update_cells(self, updates):
         """

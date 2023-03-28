@@ -13,12 +13,15 @@ from .flexbox import FlexboxCSS
 
 
 class Util:
-
     @staticmethod
     def data_to_json(value, widget):
         dump = json.dumps(value, default=Util.json_serial, ignore_nan=True)
-        if (widget.compress_data):
-            res = (base64.encodebytes(gzip.compress((dump).encode('utf-8'), compresslevel=9))).decode('utf-8')
+        if widget.compress_data:
+            res = (
+                base64.encodebytes(
+                    gzip.compress((dump).encode('utf-8'), compresslevel=9)
+                )
+            ).decode('utf-8')
             return res
         else:
             return dump
@@ -29,15 +32,25 @@ class Util:
 
     @staticmethod
     def options_to_json(value, widget):
-        res = (base64.encodebytes(gzip.compress(value.encode('utf-8'), compresslevel=9))).decode('utf-8')
+        res = (
+            base64.encodebytes(gzip.compress(value.encode('utf-8'), compresslevel=9))
+        ).decode('utf-8')
         return res
 
     @staticmethod
     def multi_options_to_json(value, widget):
         res = []
         for opt in value:
-            res.append([opt[0], (base64.encodebytes(gzip.compress(
-                opt[1].encode('utf-8'), compresslevel=9))).decode('utf-8')])
+            res.append(
+                [
+                    opt[0],
+                    (
+                        base64.encodebytes(
+                            gzip.compress(opt[1].encode('utf-8'), compresslevel=9)
+                        )
+                    ).decode('utf-8'),
+                ]
+            )
         return res
 
     @staticmethod
@@ -136,6 +149,7 @@ class Util:
         create agGrid columnDefs dict for column grouping
         from multiindex dataframe columns
         """
+
         # utility
         def get_idx(s, x):
             li_headerName = [e['colName'] for e in s]
@@ -160,16 +174,13 @@ class Util:
                 if k < L - 1:
                     i = get_idx(s2, e)
                     if i < 0:
-                        new_e = {'colName': e,
-                                 'headerName': e.title(),
-                                 'children': []}
+                        new_e = {'colName': e, 'headerName': e.title(), 'children': []}
                         s2.append(new_e)
                         i = len(s2) - 1
                     s2 = s2[i]['children']
                 else:
                     flat_field = flat_field.replace('.', '_')
-                    new_e = {'field': flat_field,
-                             'headerName': e.title()}
+                    new_e = {'field': flat_field, 'headerName': e.title()}
                     if col.dtype.kind in 'O':
                         # string
                         new_e['type'] = 'textColumn'
@@ -191,9 +202,7 @@ class Util:
         mindexrow = df.index
         s = []
         for e in list(mindexrow.names):
-            new_e = {'field': e,
-                     'headerName': e.title(),
-                     'rowGroup': True}
+            new_e = {'field': e, 'headerName': e.title(), 'rowGroup': True}
             if not keep_multiindex:
                 new_e['hide'] = True
             s.append(new_e)
@@ -221,11 +230,9 @@ class Util:
         return df
 
     @staticmethod
-    def prepare_multiindex_df(dfmi,
-                              options,
-                              index=False,
-                              keep_multiindex=False,
-                              verbose=False):
+    def prepare_multiindex_df(
+        dfmi, options, index=False, keep_multiindex=False, verbose=False
+    ):
         """
         Prepare multiindex dataframe (data) and options
         to display it with corresponding row grouping and
@@ -240,8 +247,7 @@ class Util:
         df_data = dfmi
 
         if index:
-            df_data = Util.add_index_as_col(df_data,
-                                            verbose=verbose)
+            df_data = Util.add_index_as_col(df_data, verbose=verbose)
 
         if Util.is_multiindex_col_df(df_data):
             columnDefs_col = Util.build_colDefs_for_mi_cols(df_data)
@@ -250,14 +256,12 @@ class Util:
             columnDefs_col = Util.build_colDefs_for_si_cols(df_data)
 
         if Util.is_multiindex_row_df(df_data):
-            columnDefs_row = Util.build_colDefs_for_mi_rows(df_data,
-                                                            keep_multiindex)
+            columnDefs_row = Util.build_colDefs_for_mi_rows(df_data, keep_multiindex)
             df_data = Util.flatten_mi_row_df(df_data)
         else:
             columnDefs_row = []
             if index:
-                df_data = Util.add_index_as_col(df_data,
-                                                verbose=verbose)
+                df_data = Util.add_index_as_col(df_data, verbose=verbose)
 
         new_columnDefs = columnDefs_row + columnDefs_col
 
@@ -267,10 +271,7 @@ class Util:
         return df_data, options
 
     @staticmethod
-    def prepare_singleindex_df(data,
-                               options,
-                               index=False,
-                               verbose=False):
+    def prepare_singleindex_df(data, options, index=False, verbose=False):
         """
         Prepare single index dataframe (data) and options
         To do that the dataframe is modified
@@ -279,28 +280,21 @@ class Util:
         + types are inferred from column types
         """
 
-        data = Util.correct_df_col_name(data,
-                                        verbose=verbose)
+        data = Util.correct_df_col_name(data, verbose=verbose)
         if index:
-            data = Util.add_index_as_col(data,
-                                         verbose=verbose)
+            data = Util.add_index_as_col(data, verbose=verbose)
 
         if 'columnDefs' in options:
-            options = Util.update_columnDefs(data,
-                                             options,
-                                             verbose=verbose)
+            options = Util.update_columnDefs(data, options, verbose=verbose)
         else:
-            options = Util.implicit_columnDefs(data,
-                                               options,
-                                               verbose=verbose)
+            options = Util.implicit_columnDefs(data, options, verbose=verbose)
 
         return data, options
 
     @staticmethod
     def correct_df_col_name(data, verbose=False):
         new_col = [e.replace('.', '_') for e in data.columns]
-        new_col_diff = [data.columns[i] != new_col[i]
-                        for i in range(len(data.columns))]
+        new_col_diff = [data.columns[i] != new_col[i] for i in range(len(data.columns))]
         if sum(new_col_diff) > 0:
             if verbose:
                 print('In dataframe column names "." are replaced by "_".', end=' ')
@@ -351,18 +345,14 @@ class Util:
         if not 'numberColumn' in columnTypes:
             columnTypes['numberColumn'] = numberColumn
 
-        textColumn = {
-            'filter': 'agTextColumnFilter'
-        }
+        textColumn = {'filter': 'agTextColumnFilter'}
         if not 'textColumn' in columnTypes:
             columnTypes['textColumn'] = textColumn
 
         dateColumn = {
             'valueFormatter': 'helpers.dateFormatter',
             'filter': 'agDateColumnFilter',
-            'filterParams': {
-                'comparator': 'helpers.compareDates'
-            }
+            'filterParams': {'comparator': 'helpers.compareDates'},
         }
         if not 'dateColumn' in columnTypes:
             columnTypes['dateColumn'] = dateColumn
@@ -372,9 +362,7 @@ class Util:
 
     @staticmethod
     def build_css_rules(css_rules):
-        css_rules = re.findall(r'[^\{]+\{[^\}]*\}',
-                               css_rules,
-                               re.MULTILINE)
+        css_rules = re.findall(r'[^\{]+\{[^\}]*\}', css_rules, re.MULTILINE)
         css_rules = [Util.sanitize_str(e) for e in css_rules]
         return css_rules
 
@@ -406,23 +394,22 @@ class Util:
 
         options = Util.sanitize_struct(options)
         if not is_multi:
-            options_json = json.dumps(options,
-                                      default=Util.json_serial,
-                                      ignore_nan=True)
+            options_json = json.dumps(
+                options, default=Util.json_serial, ignore_nan=True
+            )
             return options_json
         else:
             options = options['data']
             options_json = []
             for option in options:
-                option[1] = json.dumps(option[1],
-                                       default=Util.json_serial,
-                                       ignore_nan=True)
+                option[1] = json.dumps(
+                    option[1], default=Util.json_serial, ignore_nan=True
+                )
             return options
 
     @staticmethod
     def load_file(folder, filename):
-        """
-        """
+        """ """
         here = os.path.dirname(__file__)
         path = os.path.join(here, folder, filename)
         with open(path, 'r') as f:
@@ -434,6 +421,7 @@ class Util:
         """
         Builds a complete menu setup out of gridOptions and menu
         """
+
         def add_button(menu_a, name, action):
             """
             Manages append regular buttons in the menu['buttons'] list.
@@ -450,48 +438,66 @@ class Util:
         # Add csv export
         if grid.export_csv:
             add_button(
-                menu_in, 'Export to CSV',
-                'console.log("exporting to CSV"); helpers.exportToCsv(gridOptions);')
+                menu_in,
+                'Export to CSV',
+                'console.log("exporting to CSV"); helpers.exportToCsv(gridOptions);',
+            )
 
         # Add excel export
         if grid.export_excel:
             add_button(
-                menu_in, 'Export to Excel',
-                'console.log("exporting to Excel"); helpers.exportToExcel(gridOptions);')
+                menu_in,
+                'Export to Excel',
+                'console.log("exporting to Excel"); helpers.exportToExcel(gridOptions);',
+            )
 
         # Add buttons for export
         if grid.export_mode == 'buttons':
             # Add export data from selected range selection
             add_button(
-                menu_in, 'Export Grid',
-                'exportFunc.exportGrid(gridOptions, view, parseInt(inputAggregationLevel.value, 10))')
+                menu_in,
+                'Export Grid',
+                'exportFunc.exportGrid(gridOptions, view, parseInt(inputAggregationLevel.value, 10))',
+            )
 
-            if 'enableRangeSelection' in options and options[
-                    'enableRangeSelection']:
+            if 'enableRangeSelection' in options and options['enableRangeSelection']:
                 # Add export data from selected range selection
-                add_button(menu_in, 'Export Range Data',
-                           'exportFunc.exportRangeData(gridOptions, view)')
+                add_button(
+                    menu_in,
+                    'Export Range Data',
+                    'exportFunc.exportRangeData(gridOptions, view)',
+                )
 
                 # Add export columns from selected range selection
-                add_button(menu_in, 'Export Columns',
-                           'exportFunc.exportColumns(gridOptions, view)')
+                add_button(
+                    menu_in,
+                    'Export Columns',
+                    'exportFunc.exportColumns(gridOptions, view)',
+                )
 
                 # Add export rows from selected range selection
-                add_button(menu_in, 'Export Rows',
-                           'exportFunc.exportRowsOfRange(gridOptions, view)')
+                add_button(
+                    menu_in,
+                    'Export Rows',
+                    'exportFunc.exportRowsOfRange(gridOptions, view)',
+                )
 
             if 'rowSelection' in options:
                 # Add export rows from selected rows
-                add_button(menu_in, 'Export Rows',
-                           'exportFunc.exportRows(gridOptions, view)')
+                add_button(
+                    menu_in, 'Export Rows', 'exportFunc.exportRows(gridOptions, view)'
+                )
 
         # Manage menu CSS
 
         # Build button CSS
         menu_in['button_default_css'] = menu_in.get(
-            'button_default_css', {'font-size': '12px'})
-        menu_in['button_default_flex_css'] = FlexboxCSS(menu_in.get(
-            'button_default_flex_css', {'width': '150px', 'margin': '5px'}), kind='item')
+            'button_default_css', {'font-size': '12px'}
+        )
+        menu_in['button_default_flex_css'] = FlexboxCSS(
+            menu_in.get('button_default_flex_css', {'width': '150px', 'margin': '5px'}),
+            kind='item',
+        )
 
         # Manage buttons individual actions and CSS
         for button in menu_in['buttons']:
@@ -500,30 +506,37 @@ class Util:
                 if 'custom_css' in button:
                     options = button['custom_css']
                 else:
-                    options = menu_in.get(
-                        'button_default_css', {})
-                if (button['name'] == 'Export Grid'):
-                    name = button['name'].lower().replace(
-                        ' ', '-')+'-'+str(grid._id)
+                    options = menu_in.get('button_default_css', {})
+                if button['name'] == 'Export Grid':
+                    name = (
+                        button['name'].lower().replace(' ', '-') + '-' + str(grid._id)
+                    )
                     if 'flex_css' in button:
                         button['container_css'] = FlexboxCSS(
-                            button['flex_css'], kind='item').build_css('container-'+name, opt_dic={})
-                        button['css'] = FlexboxCSS(
-                            {}, kind='item').build_css(name, opt_dic=options)
+                            button['flex_css'], kind='item'
+                        ).build_css('container-' + name, opt_dic={})
+                        button['css'] = FlexboxCSS({}, kind='item').build_css(
+                            name, opt_dic=options
+                        )
                     else:
-                        button['container_css'] = menu_in['button_default_flex_css'].build_css(
-                            'container-'+name, opt_dic={})
-                        button['css'] = FlexboxCSS(
-                            {}, kind='item').build_css(name, opt_dic=options)
+                        button['container_css'] = menu_in[
+                            'button_default_flex_css'
+                        ].build_css('container-' + name, opt_dic={})
+                        button['css'] = FlexboxCSS({}, kind='item').build_css(
+                            name, opt_dic=options
+                        )
                 else:
-                    name = button['name'].lower().replace(
-                        ' ', '-')+'-'+str(grid._id)
+                    name = (
+                        button['name'].lower().replace(' ', '-') + '-' + str(grid._id)
+                    )
                     if 'flex_css' in button:
                         button['css'] = FlexboxCSS(
-                            button['flex_css'], kind='item').build_css(name, opt_dic=options)
+                            button['flex_css'], kind='item'
+                        ).build_css(name, opt_dic=options)
                     else:
                         button['css'] = menu_in['button_default_flex_css'].build_css(
-                            name, opt_dic=options)
+                            name, opt_dic=options
+                        )
                 menu['buttons'].append(button)
 
         # Managing inputs custom CSS
@@ -545,30 +558,30 @@ class Util:
         if grid.quick_filter:
             add_input(menu_in, 'Quick Filter')
         if grid.is_multi:
-            add_input(menu_in,'Dropdown Menu')
+            add_input(menu_in, 'Dropdown Menu')
         if grid.show_toggle_edit:
             add_input(menu_in, 'Toggle Edit')
         if grid.show_toggle_delete:
             add_input(menu_in, 'Toggle Delete')
 
             # Build button CSS
-        menu_in['input_default_flex_css'] = FlexboxCSS(menu_in.get(
-            'input_default_flex_css', {'margin': '5px'}), kind='item')
+        menu_in['input_default_flex_css'] = FlexboxCSS(
+            menu_in.get('input_default_flex_css', {'margin': '5px'}), kind='item'
+        )
 
         # Manage buttons individual actions and CSS
         for elem in menu_in['inputs']:
             options = {}
-            if elem['name']=='Quick Filter' or elem['name']=='Dropdown Menu':
+            if elem['name'] == 'Quick Filter' or elem['name'] == 'Dropdown Menu':
                 options['width'] = '150px'
-            name = elem['name'].lower().replace(
-                ' ', '-')+'-'+str(grid._id)
+            name = elem['name'].lower().replace(' ', '-') + '-' + str(grid._id)
             if 'flex_css' in elem:
                 options.update(elem['flex_css'])
-                elem['css'] = FlexboxCSS(
-                    options, kind='item').build_css(name)
+                elem['css'] = FlexboxCSS(options, kind='item').build_css(name)
             else:
                 elem['css'] = menu_in['input_default_flex_css'].build_css(
-                    name, opt_dic=options)
+                    name, opt_dic=options
+                )
             menu['inputs'].append(elem)
 
             # Managing button-div CSS
@@ -576,29 +589,35 @@ class Util:
             menu_in['button_div_css'] = FlexboxCSS({}, kind='container')
         else:
             menu_in['button_div_css'] = FlexboxCSS(
-                menu_in['button_div_css'], kind='container')
+                menu_in['button_div_css'], kind='container'
+            )
 
         menu['button_div_css'] = menu_in['button_div_css'].build_css(
-            'button-div-' + str(grid._id))
+            'button-div-' + str(grid._id)
+        )
 
         if not ('input_div_css' in menu_in):
             menu_in['input_div_css'] = FlexboxCSS(
-                {'align-items': 'baseline'}, kind='container')
+                {'align-items': 'baseline'}, kind='container'
+            )
         else:
             menu_in['input_div_css'] = FlexboxCSS(
-                menu_in['input_div_css'], kind='container')
+                menu_in['input_div_css'], kind='container'
+            )
 
         # Managing input-div CSS
         menu['input_div_css'] = menu_in['input_div_css'].build_css(
-            'input-div-'+str(grid._id))
+            'input-div-' + str(grid._id)
+        )
 
         if not ('menu_div_css' in menu_in):
             menu_in['menu_div_css'] = FlexboxCSS({}, kind='container')
         else:
             menu_in['menu_div_css'] = FlexboxCSS(
-                menu_in['menu_div_css'], kind='container')
+                menu_in['menu_div_css'], kind='container'
+            )
 
         # Managing menu-div CSS
         menu['menu_div_css'] = menu_in['menu_div_css'].build_css(
-            'menu-div-'+str(grid._id))
-
+            'menu-div-' + str(grid._id)
+        )

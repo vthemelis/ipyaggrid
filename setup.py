@@ -1,4 +1,3 @@
-
 # necessary to push to PyPI
 # cf. http://peterdowns.com/posts/first-time-with-pypi.html
 # cf. https://tom-christie.gitlab.io/articles/pypi/
@@ -72,5 +71,5 @@ setup(
     package_data=package_data,
     data_files=data_files,
     zip_safe=zip_safe,
-    entry_points=entry_points
+    entry_points=entry_points,
 )

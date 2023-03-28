@@ -42,4 +42,5 @@ def export_html_code(widget):
         'script_tags': script_tags,
         'grid_div': grid_div,
         'html_state': html_state,
-        'manager_state': manager_state}
+        'manager_state': manager_state,
+    }

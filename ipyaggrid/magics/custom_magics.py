@@ -1,23 +1,22 @@
-
 import os
 import io
 
 from IPython.core import magic_arguments
 from IPython.core.magic import cell_magic, Magics, magics_class
- 
+
 
 @magics_class
 class CustomMagics(Magics):
     @magic_arguments.magic_arguments()
     @magic_arguments.argument(
-        '-a', '--append', action='store_true', default=False,
+        '-a',
+        '--append',
+        action='store_true',
+        default=False,
         help='Append contents of the cell to an existing file. '
-             'The file will be created if it does not exist.'
+        'The file will be created if it does not exist.',
     )
-    @magic_arguments.argument(
-        'filename', type=str,
-        help='file to write'
-    )
+    @magic_arguments.argument('filename', type=str, help='file to write')
     @cell_magic
     def runandwrite(self, line, cell):
         """
@@ -26,7 +25,7 @@ class CustomMagics(Magics):
         """
         ip = get_ipython()
         ip.run_cell(cell)
-        
+
         args = magic_arguments.parse_argstring(self.runandwrite, line)
         filename = os.path.expanduser(args.filename)
 
@@ -41,6 +40,7 @@ class CustomMagics(Magics):
         mode = 'a' if args.append else 'w'
         with io.open(filename, mode, encoding='utf-8') as f:
             f.write(cell)
+
 
 ip = get_ipython()
 ip.register_magics(CustomMagics)

@@ -1,4 +1,3 @@
-
 from IPython.display import HTML, Markdown, display
 
 from .flexbox_standard import FlexboxStandard
@@ -34,16 +33,17 @@ class FlexboxCSS:
 
         # specific flex-flow
         if kind == 'container':
-            dic_css['flex-flow'] = '{} {}'.format(dic_css['flex-direction'],
-                                                  dic_css['flex-wrap'])
+            dic_css['flex-flow'] = '{} {}'.format(
+                dic_css['flex-direction'], dic_css['flex-wrap']
+            )
             dic_css.pop('flex-direction')
             dic_css.pop('flex-wrap')
 
         # specific flex
         if kind == 'item':
-            dic_css['flex'] = '{:.2f} {:.2f} {}'.format(dic_css['flex-grow'],
-                                                        dic_css['flex-shrink'],
-                                                        dic_css['flex-basis'])
+            dic_css['flex'] = '{:.2f} {:.2f} {}'.format(
+                dic_css['flex-grow'], dic_css['flex-shrink'], dic_css['flex-basis']
+            )
             dic_css.pop('flex-grow')
             dic_css.pop('flex-shrink')
             dic_css.pop('flex-basis')

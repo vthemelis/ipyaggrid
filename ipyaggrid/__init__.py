@@ -6,17 +6,21 @@ from .util import Util
 
 get_license = Util.get_license
 
+
 def _jupyter_nbextension_paths():
-    return [{
-        # fixed syntax
-        'section': 'notebook',
-        # path relative to module directory - here: ipyaggrid
-        'src': 'nbextension',
-        # directory in the `nbextension/` namespace
-        'dest': 'ipyaggrid',
-        # path in the `nbextension/` namespace
-        'require': 'ipyaggrid/extension'
-    }]
+    return [
+        {
+            # fixed syntax
+            'section': 'notebook',
+            # path relative to module directory - here: ipyaggrid
+            'src': 'nbextension',
+            # directory in the `nbextension/` namespace
+            'dest': 'ipyaggrid',
+            # path in the `nbextension/` namespace
+            'require': 'ipyaggrid/extension',
+        }
+    ]
+
 
 def _jupyter_labextension_paths():
     """Called by Jupyter Lab Server to detect if it is a valid labextension and
@@ -30,7 +34,9 @@ def _jupyter_labextension_paths():
         from `src` directory into <jupyter path>/labextensions/<dest> directory
         during widget installation
     """
-    return [{
-        'src': 'labextension',
-        'dest': 'ipyaggrid',
-    }]
+    return [
+        {
+            'src': 'labextension',
+            'dest': 'ipyaggrid',
+        }
+    ]

@@ -2,6 +2,7 @@ import glob
 import os
 from os.path import isdir
 
+
 def _get_version(version_info):
     """
     converts version info tuple to version string
@@ -37,32 +38,35 @@ __author_email__ = 'louisraison1@gmail.com'
 
 # gitlab template
 __url__ = 'https://gitlab.com/{}/{}'.format(__author__, name_url)
-__download_url__ = 'https://gitlab.com/{}/{}/repository/archive.tar.gz?ref={}'.format(__author__,
-                                                                                      name_url,
-                                                                                      __version__)
+__download_url__ = 'https://gitlab.com/{}/{}/repository/archive.tar.gz?ref={}'.format(
+    __author__, name_url, __version__
+)
 
-__keywords__ = ['ipywidget',
-                'javascript',
-                'ag-grid',
-                ]
+__keywords__ = [
+    'ipywidget',
+    'javascript',
+    'ag-grid',
+]
 __license__ = 'MIT'
-__classifiers__ = ['Development Status :: 4 - Beta',
-                   'License :: OSI Approved :: MIT License',
-                   'Programming Language :: Python :: 3.5',
-                   'Programming Language :: Python :: 3.6'
-                   ]
+__classifiers__ = [
+    'Development Status :: 4 - Beta',
+    'License :: OSI Approved :: MIT License',
+    'Programming Language :: Python :: 3.5',
+    'Programming Language :: Python :: 3.6',
+]
 __include_package_data__ = True
 __package_data__ = {}
 __data_files__ = [
     # classic notebook extension
-    ('share/jupyter/nbextensions/ipyaggrid', [
-        'ipyaggrid/nbextension/extension.js',
-        'ipyaggrid/nbextension/index.js',
-        'ipyaggrid/nbextension/index.js.map',
-    ]),
-    ('etc/jupyter/nbconfig/notebook.d', [
-        'ipyaggrid/ipyaggrid.json'
-    ]),
+    (
+        'share/jupyter/nbextensions/ipyaggrid',
+        [
+            'ipyaggrid/nbextension/extension.js',
+            'ipyaggrid/nbextension/index.js',
+            'ipyaggrid/nbextension/index.js.map',
+        ],
+    ),
+    ('etc/jupyter/nbconfig/notebook.d', ['ipyaggrid/ipyaggrid.json']),
     # Lab Extension
     ('share/jupyter/labextensions/ipyaggrid', ['install.json']),
 ]
@@ -70,7 +74,9 @@ __data_files__ = [
 # Lab Extension
 for root, _, files in os.walk('ipyaggrid/labextension'):
     dir_ = os.path.relpath(root, 'ipyaggrid/labextension')
-    target_dir = 'share/jupyter/labextensions/ipyaggrid%s' % ('' if dir_ == '.' else "/%s" % dir_)
+    target_dir = 'share/jupyter/labextensions/ipyaggrid%s' % (
+        '' if dir_ == '.' else "/%s" % dir_
+    )
     __data_files__.append((target_dir, ["%s/%s" % (root, f) for f in files]))
 
 __zip_safe__ = False
